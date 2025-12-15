@@ -1,11 +1,12 @@
 
-pandas==2.3.3
+pandas==2.2.3
 python-dotenv==1.0.0
-python-telegram-bot==22.5
-requests==2.32.5
+python-telegram-bot==21.10
+requests==2.32.3
 requests-oauthlib==2.0.0
 requests-toolbelt==1.0.0
 schedule==1.2.2
-types-requests==2.32.4.20250809
-yfinance==0.2.66
-
+types-requests==2.32.0.20241016
+yfinance==0.2.51
+matplotlib==3.8.3
+mplfinance==0.12.10b0
