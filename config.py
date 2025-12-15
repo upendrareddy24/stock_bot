@@ -18,6 +18,9 @@ FMP_API_KEY = os.getenv('FMP_API_KEY', 'jpqEaEcySzNXNAuzjY8XWSQjsU4kgrUt')
 # Twelve Data API (Secondary Fallback)
 TWELVE_DATA_API_KEY = os.getenv('TWELVE_DATA_API_KEY', '')
 
+# Alpha Vantage API (Tertiary Fallback)
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', 'LFFBABGTSL3S1295')
+
 # Database Configuration
 DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///stock_bot.db')
 

@@ -296,10 +296,65 @@ class DataManager:
                 else:
                     print(f"Twelve Data error: {data.get('message', 'Unknown error')}")
                     
-            except Exception as e_td:
+             except Exception as e_td:
                  print(f"❌ Error fetching from Twelve Data: {e_td}")
 
-        # FALLBACK 2: Try Yahoo Finance (Final Fallback)
+        # FALLBACK 2: Try Alpha Vantage (if key exists)
+        from config import ALPHA_VANTAGE_API_KEY
+        if ALPHA_VANTAGE_API_KEY:
+            print(f"⚠️ Twelve Data failed for {ticker}, falling back to Alpha Vantage...")
+            try:
+                # Alpha Vantage API
+                # Note: Free tier is 25 requests/day or 5/min. Use sparingly.
+                url = "https://www.alphavantage.co/query"
+                params = {
+                    "function": "TIME_SERIES_DAILY",
+                    "symbol": ticker,
+                    "outputsize": "full" if period == "1y" else "compact",
+                    "apikey": ALPHA_VANTAGE_API_KEY,
+                    "datatype": "json"
+                }
+                
+                resp = requests.get(url, params=params, timeout=15)
+                data = resp.json()
+                
+                if "Time Series (Daily)" in data:
+                    df = pd.DataFrame(data["Time Series (Daily)"]).T
+                    
+                    # Columns are "1. open", "2. high", etc. Rename them.
+                    df = df.rename(columns={
+                        "1. open": "Open",
+                        "2. high": "High",
+                        "3. low": "Low",
+                        "4. close": "Close",
+                        "5. volume": "Volume"
+                    })
+                    
+                    # Convert to numeric
+                    cols = ['Open', 'High', 'Low', 'Close', 'Volume']
+                    for col in cols:
+                        df[col] = pd.to_numeric(df[col])
+                    
+                    df.index = pd.to_datetime(df.index)
+                    df.index.name = 'Date'
+                    df.sort_index(inplace=True)
+                    
+                    # Filter by period if needed
+                    if period == "1y":
+                        start_date = datetime.datetime.now() - datetime.timedelta(days=365)
+                        df = df[df.index >= start_date]
+
+                    print(f"✅ Successfully fetched {ticker} from Alpha Vantage (Fallback 2)")
+                    return df
+                elif "Note" in data:
+                     print(f"Alpha Vantage Limit: {data['Note']}")
+                else:
+                    print(f"Alpha Vantage error: {data.keys()}")
+                    
+            except Exception as e_av:
+                 print(f"❌ Error fetching from Alpha Vantage: {e_av}")
+
+        # FALLBACK 3: Try Yahoo Finance (Final Fallback)
         print(f"⚠️ FMP/TD failed for {ticker}, falling back to Yahoo Finance...")
         try:
             # yfinance fallback
