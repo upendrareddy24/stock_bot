@@ -250,8 +250,57 @@ class DataManager:
         except Exception as e:
             print(f"Error fetching data for {ticker} from FMP: {e}")
 
-        # FALLBACK: Try Yahoo Finance
-        print(f"⚠️ FMP failed for {ticker}, falling back to Yahoo Finance...")
+        # FALLBACK 1: Try Twelve Data (if key exists)
+        from config import TWELVE_DATA_API_KEY
+        if TWELVE_DATA_API_KEY:
+            print(f"⚠️ FMP failed for {ticker}, falling back to Twelve Data...")
+            try:
+                # Twelve Data API
+                # Mapping interval
+                td_interval = "1day" if interval == "1d" else interval
+                
+                url = "https://api.twelvedata.com/time_series"
+                params = {
+                    "symbol": ticker,
+                    "interval": td_interval,
+                    "outputsize": 365 if period == if "1y" else 5000, # Approx for coverage
+                    "apikey": TWELVE_DATA_API_KEY,
+                    "order": "ASC"
+                }
+                
+                resp = requests.get(url, params=params, timeout=10)
+                data = resp.json()
+                
+                if "values" in data:
+                    df = pd.DataFrame(data["values"])
+                    # Rename columns to Capitalized
+                    df = df.rename(columns={
+                        "datetime": "Date",
+                        "open": "Open", 
+                        "high": "High", 
+                        "low": "Low", 
+                        "close": "Close", 
+                        "volume": "Volume"
+                    })
+                    
+                    # Clean data
+                    cols = ['Open', 'High', 'Low', 'Close', 'Volume']
+                    for col in cols:
+                        df[col] = pd.to_numeric(df[col])
+                        
+                    df['Date'] = pd.to_datetime(df['Date'])
+                    df.set_index('Date', inplace=True)
+                    
+                    print(f"✅ Successfully fetched {ticker} from Twelve Data (Fallback 1)")
+                    return df
+                else:
+                    print(f"Twelve Data error: {data.get('message', 'Unknown error')}")
+                    
+            except Exception as e_td:
+                 print(f"❌ Error fetching from Twelve Data: {e_td}")
+
+        # FALLBACK 2: Try Yahoo Finance (Final Fallback)
+        print(f"⚠️ FMP/TD failed for {ticker}, falling back to Yahoo Finance...")
         try:
             # yfinance fallback
             import yfinance as yf
