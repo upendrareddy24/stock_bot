@@ -248,7 +248,48 @@ class DataManager:
             return df
             
         except Exception as e:
-            print(f"Error fetching data for {ticker}: {e}")
+            print(f"Error fetching data for {ticker} from FMP: {e}")
+
+        # FALLBACK: Try Yahoo Finance
+        print(f"⚠️ FMP failed for {ticker}, falling back to Yahoo Finance...")
+        try:
+            # yfinance fallback
+            import yfinance as yf
+            
+            # Map period/interval if needed, yfinance is flexible
+            # period: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max
+            # interval: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
+            
+            # Adjust interval for yfinance
+            yf_interval = interval
+            if interval == "1min": yf_interval = "1m"
+            elif interval == "5min": yf_interval = "5m"
+            elif interval == "15min": yf_interval = "15m"
+            elif interval == "1hour": yf_interval = "1h"
+            
+            ticker_obj = yf.Ticker(ticker)
+            df = ticker_obj.history(period=period, interval=yf_interval)
+            
+            if df.empty:
+                print(f"No data found for {ticker} in Yahoo Finance.")
+                return pd.DataFrame()
+            
+            # Standardize columns
+            # Yahoo returns: Open, High, Low, Close, Volume, Dividends, Stock Splits
+            # We need: Open, High, Low, Close, Volume (capitalized)
+            df = df[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
+            
+            # Yahoo index is timezone aware datetime, make it tz-naive for compatibility
+            if df.index.tz is not None:
+                df.index = df.index.tz_localize(None)
+                
+            df.index.name = 'Date'
+            
+            print(f"✅ Successfully fetched {ticker} from Yahoo Finance (Fallback)")
+            return df
+            
+        except Exception as e_yahoo:
+            print(f"❌ Error fetching from Yahoo Finance for {ticker}: {e_yahoo}")
             return pd.DataFrame()
 
     def get_sp500_tickers(self):
