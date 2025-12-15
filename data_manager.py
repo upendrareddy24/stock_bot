@@ -263,7 +263,7 @@ class DataManager:
                 params = {
                     "symbol": ticker,
                     "interval": td_interval,
-                    "outputsize": 365 if period == if "1y" else 5000, # Approx for coverage
+                    "outputsize": 365 if period == "1y" else 5000, # Approx for coverage
                     "apikey": TWELVE_DATA_API_KEY,
                     "order": "ASC"
                 }
