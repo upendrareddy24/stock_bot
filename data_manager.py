@@ -217,8 +217,8 @@ class DataManager:
             data = response.json()
             
             if "historical" not in data:
-                print(f"No historical data found for {ticker} in FMP response.")
-                return pd.DataFrame()
+                # Raise error to trigger fallback mechanisms
+                raise ValueError(f"No historical data found for {ticker} in FMP response")
                 
             # Convert to DataFrame
             df = pd.DataFrame(data["historical"])
