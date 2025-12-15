@@ -4,10 +4,7 @@ Analyzes major market indices with 75 years of experience methodology
 Provides 0-10 rating scale for easy decision making
 """
 
-import pandas as pd
-import yfinance as yf
-from datetime import datetime, timedelta
-
+from data_manager import DataManager
 
 class IndexAnalyzer:
     """
@@ -51,12 +48,14 @@ class IndexAnalyzer:
     
     def __init__(self):
         self.cache = {}
+        self.dm = DataManager()
     
-    def fetch_index_data(self, symbol, period='3mo'):
-        """Fetch historical data for index"""
+    def fetch_index_data(self, symbol, period='2y'):
+        """Fetch historical data for index using DataManager (FMP -> Yahoo Fallback)"""
         try:
-            ticker = yf.Ticker(symbol)
-            df = ticker.history(period=period)
+            # DataManager handles the fallback logic and API keys
+            # We request 2y to ensure we have enough for 52-week high/low + Moving Averages
+            df = self.dm.get_stock_history(symbol, period=period)
             return df
         except Exception as e:
             print(f"Error fetching {symbol}: {e}")
