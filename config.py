@@ -13,7 +13,7 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', '7384198714:AAGNdXKZWY5rQP31f-a-Tw4
 CHAT_ID = os.getenv('CHAT_ID', '5662042103')
 
 # Financial Modeling Prep API
-FMP_API_KEY = os.getenv('FMP_API_KEY', 'Z0G45b7SaKOKIjdvJUdRjMqDWgyDTv5w')
+FMP_API_KEY = os.getenv('FMP_API_KEY', 'jpqEaEcySzNXNAuzjY8XWSQjsU4kgrUt')
 
 # Database Configuration
 DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///stock_bot.db')
