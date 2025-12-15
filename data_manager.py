@@ -296,7 +296,7 @@ class DataManager:
                 else:
                     print(f"Twelve Data error: {data.get('message', 'Unknown error')}")
                     
-             except Exception as e_td:
+            except Exception as e_td:
                  print(f"❌ Error fetching from Twelve Data: {e_td}")
 
         # FALLBACK 2: Try Alpha Vantage (if key exists)
