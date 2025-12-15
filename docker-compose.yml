@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  stock-bot:
+    build: .
+    container_name: stock-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - TZ=America/New_York
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: PostgreSQL database for production
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: stock-bot-db
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: stock_bot
+  #     POSTGRES_USER: stock_bot_user
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+# volumes:
+#   postgres_data:
